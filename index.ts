@@ -6,7 +6,7 @@ import cors from "cors";
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: "postgresql://postgres:amit@localhost:5432/postgres",
+      url: "postgresql://test_owner:tuglL4IKEHA3@ep-nameless-tooth-a1krhx87.ap-southeast-1.aws.neon.tech/test?sslmode=require",
     },
   },
 });
