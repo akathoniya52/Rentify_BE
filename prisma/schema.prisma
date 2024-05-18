@@ -1,0 +1,83 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  user_id               Int                 @id @default(autoincrement())
+  first_name            String
+  last_name             String
+  email                 String              @unique
+  phone_number          String
+  password_hash         String
+  user_type             UserType
+  created_at            DateTime            @default(now())
+  properties            Property[]
+  interests             Interested[]
+  likes                 Like[]
+  notificationsSent     EmailNotification[] @relation("Sender")
+  notificationsReceived EmailNotification[] @relation("Recipient")
+}
+
+model Property {
+  property_id       Int                 @id @default(autoincrement())
+  user_id           Int
+  title             String
+  description       String?
+  location          String
+  area              Int
+  bedrooms          Int
+  bathrooms         Int
+  amenities         String?
+  price             Float
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+  owner             User                @relation(fields: [user_id], references: [user_id])
+  interests         Interested[]
+  likes             Like[]
+  EmailNotification EmailNotification[]
+}
+
+model Interested {
+  interest_id Int      @id @default(autoincrement())
+  buyer_id    Int
+  property_id Int
+  created_at  DateTime @default(now())
+  buyer       User     @relation(fields: [buyer_id], references: [user_id])
+  property    Property @relation(fields: [property_id], references: [property_id])
+}
+
+model Like {
+  like_id     Int      @id @default(autoincrement())
+  user_id     Int
+  property_id Int
+  created_at  DateTime @default(now())
+  user        User     @relation(fields: [user_id], references: [user_id])
+  property    Property @relation(fields: [property_id], references: [property_id])
+}
+
+model EmailNotification {
+  notification_id   Int              @id @default(autoincrement())
+  sender_id         Int
+  recipient_id      Int
+  property_id       Int
+  notification_type NotificationType
+  created_at        DateTime         @default(now())
+  sender            User             @relation("Sender", fields: [sender_id], references: [user_id])
+  recipient         User             @relation("Recipient", fields: [recipient_id], references: [user_id])
+  property          Property         @relation(fields: [property_id], references: [property_id])
+}
+
+enum UserType {
+  seller
+  buyer
+}
+
+enum NotificationType {
+  interest
+  contact
+}
