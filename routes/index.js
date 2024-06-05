@@ -15,12 +15,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
 const index_1 = require("../controller/index");
+const validator_1 = require("../validator");
+var jwt = require('jsonwebtoken');
+const JWT_SECRET = "AMITDEV";
 const prisma = new client_1.PrismaClient();
 const app = express_1.default.Router();
 app.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // const { email, password } = req.body;
+    const { success } = validator_1.loginSchema.safeParse(req.body);
+    if (!success)
+        return res.status(411).json({ message: "Try again with valid inputs" });
     const email = req.body.email;
     const password = req.body.password;
+    console.log("Boy------>", req.body);
     try {
         const user = yield (0, index_1.getUserByEmail)(email);
         if (!user) {
@@ -29,18 +36,22 @@ app.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (user.password_hash !== password) {
             return res.json({ message: "Incorrect Password", status: false });
         }
-        return res.json({ mesage: "User get logged in", status: true, user });
+        const token = jwt.sign(user.user_id, JWT_SECRET);
+        return res.json({ mesage: "User get logged in", status: true, user, token });
     }
     catch (error) {
-        console.log(error);
-        res.json({ mesaage: "something went wrong..!", status: false });
+        console.log("Error------>", error);
+        res.status(404).json({ mesaage: "something went wrong..!", status: false });
     }
 }));
 app.post("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const { success } = validator_1.createUserSchema.safeParse(req.body);
+        if (!success)
+            return res.status(411).json({ message: "Try again with valid inputs" });
         const user = yield (0, index_1.createUser)(req.body);
         res.status(201).json({
-            message: `${user.user_type} Successfully Created`,
+            message: `${user === null || user === void 0 ? void 0 : user.user_type} Successfully Created`,
             user: user,
             status: true,
         });
@@ -63,6 +74,9 @@ app.get("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 // Create a new property
 app.post("/properties", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { success } = validator_1.createPropertySchema.safeParse(req.body);
+    if (!success)
+        return res.status(411).json({ message: "Try again with valid inputs" });
     const { user_id, title, description, location, area, bedrooms, bathrooms, amenities, price, } = req.body;
     const newArea = parseInt(area);
     const newBad = parseInt(bedrooms);
@@ -104,6 +118,21 @@ app.get("/properties", (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (error) {
         res.status(500).json({ error: error.message });
+    }
+}));
+app.get('/property/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = parseInt(req.params.id);
+    try {
+        const property = yield prisma.property.findUnique({
+            where: {
+                property_id: id
+            }
+        });
+        console.log("Property----->", property);
+        res.status(200).json({ property });
+    }
+    catch (error) {
+        res.status(404).json({ message: "Property Not Found..!" });
     }
 }));
 app.get("/properties/:userId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

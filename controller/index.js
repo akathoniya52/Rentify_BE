@@ -22,7 +22,7 @@ const getUserByEmail = (email) => __awaiter(void 0, void 0, void 0, function* ()
         return user;
     }
     catch (error) {
-        throw new Error("Something went wrong");
+        console.log("Error insdie the user");
     }
 });
 exports.getUserByEmail = getUserByEmail;
@@ -36,13 +36,13 @@ const createUser = (user) => __awaiter(void 0, void 0, void 0, function* () {
                 email: user.email,
                 phone_number: user.phone_number,
                 password_hash: user.password,
-                user_type: user.user_type,
+                user_type: user.user_type
             },
         });
         return response;
     }
     catch (error) {
-        throw new Error("Something wrong happend..");
+        console.log("Error : While creating the user", error);
     }
 });
 exports.createUser = createUser;

@@ -12,11 +12,11 @@ export const getUserByEmail = async (email: string) => {
     });
     return user;
   } catch (error) {
-    throw new Error("Something went wrong");
+    console.log("Error insdie the user")
   }
 };
 
-export const createUser = async (user: createUserType): Promise<User> => {
+export const createUser = async (user: createUserType) => {
   try {
     console.log(user)
     const response = await prisma.user.create({
@@ -26,12 +26,12 @@ export const createUser = async (user: createUserType): Promise<User> => {
         email: user.email,
         phone_number: user.phone_number,
         password_hash: user.password,
-        user_type: user.user_type,
+        user_type: user.user_type
       },
     });
     return response;
   } catch (error) {
-    throw new Error("Something wrong happend..");
+    console.log("Error : While creating the user",error)
   }
 };
 

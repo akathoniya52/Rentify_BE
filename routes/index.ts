@@ -1,6 +1,10 @@
 import express, { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { createUser, getAllProperties, getAllUsers, getUserByEmail } from "../controller/index";
+import { createPropertySchema, createUserSchema, loginSchema } from "../validator";
+var jwt = require('jsonwebtoken');
+
+const JWT_SECRET = "AMITDEV"
 
 const prisma = new PrismaClient();
 
@@ -8,8 +12,12 @@ const app = express.Router();
 
 app.post("/login", async (req: Request, res: Response) => {
   // const { email, password } = req.body;
+  const {success} = loginSchema.safeParse(req.body)
+  if(!success) return res.status(411).json({message:"Try again with valid inputs"})
+
   const email : string = req.body.email;
   const password : string = req.body.password;
+  console.log("Boy------>",req.body)
   try {
     const user = await getUserByEmail(email);
     if (!user) {
@@ -18,18 +26,21 @@ app.post("/login", async (req: Request, res: Response) => {
     if (user.password_hash !== password) {
       return res.json({ message: "Incorrect Password", status: false });
     }
-    return res.json({ mesage: "User get logged in", status: true, user });
+    const token = jwt.sign(user.user_id,JWT_SECRET)
+    return res.json({ mesage: "User get logged in", status: true, user,token });
   } catch (error: any) {
-    console.log(error);
-    res.json({ mesaage: "something went wrong..!", status: false });
+    console.log("Error------>",error);
+    res.status(404).json({ mesaage: "something went wrong..!", status: false });
   }
 });
 
 app.post("/users", async (req, res) => {
   try {
+    const {success} = createUserSchema.safeParse(req.body)
+    if(!success) return res.status(411).json({message:"Try again with valid inputs"})
     const user = await createUser(req.body)
     res.status(201).json({
-      message: `${user.user_type} Successfully Created`,
+      message: `${user?.user_type} Successfully Created`,
       user: user,
       status: true,
     });
@@ -52,6 +63,8 @@ app.get("/users", async (req, res) => {
 
 // Create a new property
 app.post("/properties", async (req, res) => {
+  const {success} = createPropertySchema.safeParse(req.body);
+  if(!success) return res.status(411).json({message:"Try again with valid inputs"})
   const {
     user_id,
     title,
@@ -105,6 +118,21 @@ app.get("/properties", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.get('/property/:id',async (req,res)=>{
+  const id = parseInt(req.params.id);
+  try {
+    const property = await prisma.property.findUnique({
+      where:{
+        property_id:id
+      }
+    })
+    console.log("Property----->",property)
+    res.status(200).json({property})
+  } catch (error) {
+    res.status(404).json({message:"Property Not Found..!"})
+  }
+})
 
 app.get("/properties/:userId", async (req, res) => {
   const userId = parseInt(req.params.userId);

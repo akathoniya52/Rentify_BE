@@ -9,6 +9,7 @@ const cors_1 = __importDefault(require("cors"));
 const index_1 = __importDefault(require("./routes/index"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8000;
+app.use(express_1.default.json());
 app.use(body_parser_1.default.json());
 app.use((0, cors_1.default)({ origin: "*", credentials: true }));
 // Routes
