@@ -135,6 +135,47 @@ app.get('/property/:id',async (req,res)=>{
   }
 })
 
+app.patch('/property/:id',async (req,res)=>{
+  const id = parseInt(req.params.id);
+  const body = req.body;
+  const {
+    user_id,
+    title,
+    description,
+    location,
+    area,
+    bedrooms,
+    bathrooms,
+    amenities,
+    price,
+  } = req.body;
+  const newArea = parseInt(area);
+  const newBad = parseInt(bedrooms);
+  const newBath = parseInt(bathrooms);
+  const newPrice = parseInt(price);
+  console.log(body)
+  try {
+    const property = await prisma.property.update({
+      where: { property_id:id },
+      data: {
+        user_id,
+        title,
+        description,
+        location,
+        area: newArea,
+        bedrooms: newBad,
+        bathrooms: newBath,
+        amenities,
+        price: newPrice,
+      },
+    });
+    console.log("Property----->",property)
+    res.status(200).json({property})
+  } catch (error) {
+    res.status(404).json({message:"Property Not Found..!"})
+  }
+})
+
 app.get("/properties/:userId", async (req, res) => {
   const userId = parseInt(req.params.userId);
   try {
