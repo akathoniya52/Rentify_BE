@@ -46,8 +46,9 @@ app.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 }));
 app.post("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { success } = validator_1.createUserSchema.safeParse(req.body);
-        if (!success)
+        const responce = validator_1.createUserSchema.safeParse(req.body);
+        console.log(responce.error);
+        if (!responce.success)
             return res.status(411).json({ message: "Try again with valid inputs" });
         const user = yield (0, index_1.createUser)(req.body);
         res.status(201).json({

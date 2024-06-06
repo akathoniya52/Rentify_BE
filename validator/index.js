@@ -3,11 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createPropertySchema = exports.loginSchema = exports.createUserSchema = void 0;
 const zod_1 = require("zod");
 exports.createUserSchema = zod_1.z.object({
-    first_Name: zod_1.z.string({ message: "First Name Must be the String.." }).min(2).max(255),
-    last_name: zod_1.z.string().min(2).max(255),
-    email: zod_1.z.string(),
-    password: zod_1.z.string(),
-    user_type: zod_1.z.string(),
+    first_name: zod_1.z.string({ message: "First Name Must be the String.." }).min(2).max(255),
+    last_name: zod_1.z.string().min(2, { message: "Name should have atleast 2 Character" }).max(255),
+    email: zod_1.z.string({ message: "gmail should be string" }),
+    password: zod_1.z.string({ message: "Password should be string" }),
+    user_type: zod_1.z.string({ message: "user type should be seller or buyer" }),
+    phone_number: zod_1.z.string({ message: "Phone Number should be string" })
 });
 exports.loginSchema = zod_1.z.object({
     email: zod_1.z.string().email(),

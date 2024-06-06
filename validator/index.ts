@@ -1,11 +1,12 @@
-import {string, z} from 'zod'
+import { z} from 'zod'
 
 export const createUserSchema = z.object({
-    first_Name:z.string({message:"First Name Must be the String.."}).min(2).max(255),
-    last_name:z.string().min(2).max(255),
-    email:z.string(),
-    password:z.string(),
-    user_type:z.string(),
+    first_name:z.string({message:"First Name Must be the String.."}).min(2).max(255),
+    last_name:z.string().min(2,{message:"Name should have atleast 2 Character"}).max(255),
+    email:z.string({message:"gmail should be string"}),
+    password:z.string({message:"Password should be string"}),
+    user_type:z.string({message:"user type should be seller or buyer"}),
+    phone_number:z.string({message:"Phone Number should be string"})
 })
 
 export const loginSchema = z.object({

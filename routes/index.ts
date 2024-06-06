@@ -36,8 +36,9 @@ app.post("/login", async (req: Request, res: Response) => {
 
 app.post("/users", async (req, res) => {
   try {
-    const {success} = createUserSchema.safeParse(req.body)
-    if(!success) return res.status(411).json({message:"Try again with valid inputs"})
+    const responce = createUserSchema.safeParse(req.body)
+    console.log(responce.error)
+    if(!responce.success) return res.status(411).json({message:"Try again with valid inputs"})
     const user = await createUser(req.body)
     res.status(201).json({
       message: `${user?.user_type} Successfully Created`,
